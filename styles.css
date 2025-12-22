@@ -1,0 +1,923 @@
+/* ========================================
+   Kids Gift Vault - Christmas Theme
+   Mobile-first interactive gift reveal
+   ======================================== */
+
+/* CSS Variables */
+:root {
+    /* Christmas Colors */
+    --christmas-red: #C41E3A;
+    --christmas-red-dark: #8B0000;
+    --christmas-green: #228B22;
+    --christmas-green-dark: #006400;
+    --christmas-gold: #FFD700;
+    --christmas-gold-dark: #B8860B;
+    --snow-white: #FFFAFA;
+    --warm-cream: #FFF8DC;
+
+    /* Sean's Colors */
+    --sean-blue: #4169E1;
+    --sean-blue-dark: #2E4A9E;
+    --sean-silver: #C0C0C0;
+
+    /* Paloma's Colors */
+    --paloma-pink: #FF69B4;
+    --paloma-pink-dark: #DB7093;
+    --paloma-gold: #FFD700;
+
+    /* Together Colors */
+    --together-purple: #8A2BE2;
+
+    /* Backgrounds */
+    --bg-dark: #1a1a2e;
+    --bg-warm: #2d1f1f;
+    --bg-vault: #1a1512;
+
+    /* Spacing */
+    --safe-top: env(safe-area-inset-top, 20px);
+    --safe-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+/* Reset */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    overflow: hidden;
+    height: 100%;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg-dark);
+    color: var(--snow-white);
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+/* ========================================
+   Screens
+   ======================================== */
+
+.screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    padding-top: calc(2rem + var(--safe-top));
+    padding-bottom: calc(2rem + var(--safe-bottom));
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+    z-index: 1;
+}
+
+.screen.active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 10;
+}
+
+/* Theme Backgrounds */
+.sean-theme {
+    background: linear-gradient(180deg, #1a2a4a 0%, #0d1a30 100%);
+}
+
+.paloma-theme {
+    background: linear-gradient(180deg, #2d1a2d 0%, #1a0d1a 100%);
+}
+
+.together-theme {
+    background: linear-gradient(180deg, var(--christmas-red-dark) 0%, var(--christmas-green-dark) 100%);
+}
+
+.finale-theme {
+    background: linear-gradient(180deg, #1a2e1a 0%, #0d1a0d 100%);
+}
+
+/* ========================================
+   Sound Toggle
+   ======================================== */
+
+.sound-toggle {
+    position: fixed;
+    top: calc(1rem + var(--safe-top));
+    right: 1rem;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease;
+}
+
+.sound-toggle:active {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* ========================================
+   Snowfall
+   ======================================== */
+
+.snowfall {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    overflow: hidden;
+}
+
+.snowflake {
+    position: absolute;
+    top: -20px;
+    color: white;
+    opacity: 0.8;
+    animation: snowfall var(--fall-time, 10s) linear infinite;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+}
+
+@keyframes snowfall {
+    0% {
+        transform: translateY(-20px) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.8;
+    }
+    90% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* ========================================
+   Screen 0: Welcome
+   ======================================== */
+
+#screen-welcome {
+    background: radial-gradient(ellipse at center, #1a2e3a 0%, #0d1a1a 100%);
+}
+
+.snow-globe {
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), transparent 60%),
+                linear-gradient(180deg, #2a3f5f 0%, #1a2a4a 100%);
+    border-radius: 50%;
+    border: 8px solid var(--christmas-gold);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3),
+                inset 0 0 60px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.globe-content {
+    position: relative;
+    width: 80%;
+    height: 80%;
+}
+
+.christmas-tree {
+    position: absolute;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 30px solid transparent;
+    border-right: 30px solid transparent;
+    border-bottom: 60px solid var(--christmas-green);
+}
+
+.christmas-tree::before {
+    content: '⭐';
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1rem;
+}
+
+.presents-pile {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5rem;
+}
+
+.presents-pile::before {
+    content: '🎁🎁';
+}
+
+.welcome-title {
+    font-size: clamp(2rem, 8vw, 3rem);
+    font-weight: 700;
+    color: var(--christmas-gold);
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    margin-bottom: 0.5rem;
+}
+
+.welcome-subtitle {
+    font-size: clamp(1rem, 4vw, 1.25rem);
+    color: var(--snow-white);
+    opacity: 0.9;
+    margin-bottom: 2rem;
+}
+
+.tap-prompt {
+    background: var(--christmas-red);
+    color: white;
+    border: none;
+    padding: 1rem 2.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(196, 30, 58, 0.4);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tap-prompt:active {
+    transform: scale(0.95);
+}
+
+.pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* ========================================
+   Screen 1: Vault
+   ======================================== */
+
+#screen-vault {
+    background: linear-gradient(180deg, var(--bg-vault) 0%, #0d0a08 100%);
+}
+
+.vault-header h1 {
+    font-size: clamp(1.25rem, 5vw, 1.75rem);
+    font-weight: 600;
+    color: var(--christmas-gold);
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.gift-doors {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 100%;
+    max-width: 300px;
+}
+
+.gift-door {
+    position: relative;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+    border: 3px solid;
+    border-radius: 16px;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.gift-door:active {
+    transform: scale(0.97);
+}
+
+.sean-door {
+    border-color: var(--sean-blue);
+    box-shadow: 0 4px 20px rgba(65, 105, 225, 0.3);
+}
+
+.paloma-door {
+    border-color: var(--paloma-pink);
+    box-shadow: 0 4px 20px rgba(255, 105, 180, 0.3);
+}
+
+.together-door {
+    border-color: var(--christmas-gold);
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.3);
+}
+
+.door-bow {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5rem;
+}
+
+.door-bow::before {
+    content: '🎀';
+}
+
+.sean-bow::before { content: '💙'; }
+.paloma-bow::before { content: '💗'; }
+.together-bow::before { content: '🎀'; }
+
+.door-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.door-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--snow-white);
+}
+
+/* ========================================
+   Challenge Screens Common
+   ======================================== */
+
+.back-btn {
+    position: absolute;
+    top: calc(1rem + var(--safe-top));
+    left: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.challenge-title {
+    font-size: clamp(1.25rem, 5vw, 1.75rem);
+    font-weight: 700;
+    color: var(--christmas-gold);
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.challenge-instruction {
+    font-size: 1rem;
+    color: var(--snow-white);
+    opacity: 0.9;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.unlock-btn {
+    background: linear-gradient(135deg, var(--christmas-gold) 0%, var(--christmas-gold-dark) 100%);
+    color: #1a1a1a;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4);
+    animation: glow 1.5s ease-in-out infinite;
+    margin-top: 1.5rem;
+}
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 4px 20px rgba(255, 215, 0, 0.4); }
+    50% { box-shadow: 0 4px 40px rgba(255, 215, 0, 0.8); }
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ========================================
+   Screen 2: Sean Challenge
+   ======================================== */
+
+.football-pitch {
+    position: relative;
+    width: 250px;
+    height: 200px;
+    background: linear-gradient(180deg, #2d5a27 0%, #1a4a1a 100%);
+    border-radius: 10px;
+    border: 3px solid white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.football-pitch::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 40px;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-top: none;
+    border-radius: 0 0 40px 40px;
+}
+
+.goal-posts {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 10px;
+    background: white;
+    border-radius: 0 0 5px 5px;
+}
+
+.goal-light {
+    position: absolute;
+    top: -5px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    animation: twinkle 1s ease-in-out infinite alternate;
+}
+
+.goal-light.left { left: -5px; background: var(--christmas-red); }
+.goal-light.right { right: -5px; background: var(--christmas-green); }
+
+@keyframes twinkle {
+    0% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+.football {
+    font-size: 3.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s ease;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+.football:active {
+    transform: scale(1.2);
+}
+
+.football.kick {
+    animation: kickBall 0.3s ease-out;
+}
+
+@keyframes kickBall {
+    0% { transform: scale(1) translateY(0); }
+    50% { transform: scale(1.3) translateY(-50px); }
+    100% { transform: scale(1) translateY(0); }
+}
+
+.kick-counter {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--sean-blue);
+    margin-top: 1.5rem;
+}
+
+/* ========================================
+   Screen 4: Paloma Challenge
+   ======================================== */
+
+.stage {
+    position: relative;
+    width: 280px;
+    height: 220px;
+    background: linear-gradient(180deg, #4a1a1a 0%, #2d0d0d 100%);
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.curtain {
+    position: absolute;
+    top: 0;
+    width: 30px;
+    height: 100%;
+    background: linear-gradient(90deg, #8B0000, #660000);
+}
+
+.curtain.left { left: 0; }
+.curtain.right { right: 0; }
+
+.stage-lights {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 5px;
+    background: linear-gradient(90deg,
+        var(--christmas-red) 0%,
+        var(--christmas-gold) 25%,
+        var(--christmas-green) 50%,
+        var(--christmas-gold) 75%,
+        var(--christmas-red) 100%);
+    border-radius: 3px;
+    animation: stageLights 2s linear infinite;
+}
+
+@keyframes stageLights {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(1.5); }
+    100% { filter: brightness(1); }
+}
+
+.microphone {
+    font-size: 4rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    transition: transform 0.2s ease;
+}
+
+.microphone:active {
+    transform: scale(1.2) rotate(-10deg);
+}
+
+.mic-ribbon {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 1rem;
+}
+
+.mic-ribbon::before {
+    content: '🎀';
+}
+
+.notes-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.music-note {
+    position: absolute;
+    font-size: 1.5rem;
+    animation: floatNote 1.5s ease-out forwards;
+}
+
+@keyframes floatNote {
+    0% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-150px) scale(1.5) rotate(20deg);
+    }
+}
+
+.tap-counter {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--paloma-pink);
+    margin-top: 1.5rem;
+}
+
+/* ========================================
+   Screen 6: Together Challenge
+   ======================================== */
+
+.ornaments-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.ornament {
+    width: 100px;
+    height: 120px;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: transform 0.2s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.ornament::before {
+    content: '';
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+    background: var(--christmas-gold);
+    border-radius: 4px;
+}
+
+.ornament::after {
+    content: '';
+    position: absolute;
+    top: -25px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 15px;
+    background: var(--christmas-gold);
+}
+
+.sean-ornament {
+    background: linear-gradient(135deg, var(--sean-blue) 0%, var(--sean-blue-dark) 100%);
+}
+
+.paloma-ornament {
+    background: linear-gradient(135deg, var(--paloma-pink) 0%, var(--paloma-pink-dark) 100%);
+}
+
+.ornament:active {
+    transform: scale(0.95);
+}
+
+.ornament.tapped {
+    animation: ornamentGlow 0.5s ease-out;
+}
+
+@keyframes ornamentGlow {
+    0% { box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); }
+    50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
+    100% { box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); }
+}
+
+.ornament-letter {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.ornament-connector {
+    width: 30px;
+    height: 3px;
+    background: var(--christmas-gold);
+    opacity: 0.5;
+}
+
+.together-hint {
+    font-size: 1rem;
+    color: var(--snow-white);
+    opacity: 0.8;
+    text-align: center;
+}
+
+.together-hint.success {
+    color: var(--christmas-gold);
+    font-weight: 700;
+}
+
+.together-hint.fail {
+    color: var(--christmas-red);
+    animation: shake 0.5s ease-out;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-10px); }
+    40%, 80% { transform: translateX(10px); }
+}
+
+/* ========================================
+   Reveal Screens Common
+   ======================================== */
+
+.reveal-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: 350px;
+}
+
+.reveal-title {
+    font-size: clamp(2rem, 8vw, 3rem);
+    font-weight: 800;
+    color: var(--christmas-gold);
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+    margin-bottom: 0.5rem;
+    animation: revealPop 0.6s ease-out;
+}
+
+@keyframes revealPop {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.reveal-highlight {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--paloma-pink);
+    margin-bottom: 0.5rem;
+}
+
+.reveal-subtitle {
+    font-size: 1.1rem;
+    color: var(--snow-white);
+    opacity: 0.9;
+    margin-bottom: 1.5rem;
+}
+
+.video-container {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+    border: 2px solid var(--christmas-gold);
+}
+
+.video-container iframe {
+    width: 100%;
+    height: 100%;
+}
+
+.reveal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 280px;
+    margin-top: 1.5rem;
+}
+
+.primary-btn {
+    background: linear-gradient(135deg, var(--christmas-gold) 0%, var(--christmas-gold-dark) 100%);
+    color: #1a1a1a;
+    border: none;
+    padding: 1rem 1.5rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+}
+
+.secondary-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--snow-white);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    border-radius: 50px;
+    cursor: pointer;
+}
+
+/* ========================================
+   Screen 8: Finale
+   ======================================== */
+
+.finale-content {
+    text-align: center;
+}
+
+.finale-title {
+    font-size: clamp(2rem, 10vw, 3.5rem);
+    font-weight: 800;
+    color: var(--christmas-gold);
+    text-shadow: 0 0 40px rgba(255, 215, 0, 0.6);
+    margin-bottom: 0.5rem;
+}
+
+.finale-names {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+    font-weight: 600;
+    color: var(--snow-white);
+    margin-bottom: 1.5rem;
+}
+
+.finale-message {
+    font-size: 1.1rem;
+    color: var(--snow-white);
+    opacity: 0.9;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.finale-hearts {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    animation: heartbeat 1s ease-in-out infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.vault-return-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--snow-white);
+    border: 2px solid var(--christmas-gold);
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 50px;
+    cursor: pointer;
+}
+
+/* ========================================
+   Confetti
+   ======================================== */
+
+.confetti-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    overflow: hidden;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    animation: confettiFall var(--fall-time, 3s) linear forwards;
+}
+
+@keyframes confettiFall {
+    0% {
+        transform: translateY(-20px) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(720deg);
+        opacity: 0;
+    }
+}
+
+/* ========================================
+   Accessibility
+   ======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ========================================
+   Landscape Warning (optional)
+   ======================================== */
+
+@media (orientation: landscape) and (max-height: 500px) {
+    .screen {
+        padding: 1rem;
+    }
+
+    .gift-doors {
+        flex-direction: row;
+        max-width: 100%;
+        gap: 1rem;
+    }
+
+    .gift-door {
+        padding: 1rem;
+    }
+
+    .door-icon {
+        font-size: 2rem;
+    }
+}

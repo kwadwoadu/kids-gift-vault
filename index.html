@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Gift Vault</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Sound Toggle (Global) -->
+    <button id="sound-toggle" class="sound-toggle" aria-label="Toggle sound">
+        <span class="sound-on">🔊</span>
+        <span class="sound-off" style="display: none;">🔇</span>
+    </button>
+
+    <!-- Snowfall Overlay -->
+    <div id="snowfall" class="snowfall" aria-hidden="true"></div>
+
+    <!-- Screen 0: Welcome -->
+    <div id="screen-welcome" class="screen active">
+        <div class="snow-globe">
+            <div class="globe-content">
+                <div class="globe-inner">
+                    <div class="christmas-tree"></div>
+                    <div class="presents-pile"></div>
+                </div>
+            </div>
+        </div>
+        <h1 class="welcome-title">The Gift Vault</h1>
+        <p class="welcome-subtitle">For Sean & Paloma</p>
+        <button class="tap-prompt pulse" onclick="goToScreen('vault')">
+            Tap to Enter
+        </button>
+    </div>
+
+    <!-- Screen 1: Vault (Main Hub) -->
+    <div id="screen-vault" class="screen">
+        <div class="vault-header">
+            <h1>Choose Who Opens a Gift</h1>
+        </div>
+        <div class="gift-doors">
+            <button class="gift-door sean-door" onclick="goToScreen('sean-challenge')">
+                <div class="door-bow sean-bow"></div>
+                <div class="door-label">Sean's Gift</div>
+                <div class="door-icon">⚽</div>
+            </button>
+            <button class="gift-door paloma-door" onclick="goToScreen('paloma-challenge')">
+                <div class="door-bow paloma-bow"></div>
+                <div class="door-label">Paloma's Gift</div>
+                <div class="door-icon">🎤</div>
+            </button>
+            <button class="gift-door together-door" onclick="goToScreen('together-challenge')">
+                <div class="door-bow together-bow"></div>
+                <div class="door-label">A Gift for Both</div>
+                <div class="door-icon">🎮</div>
+            </button>
+        </div>
+        <div class="fairy-lights" aria-hidden="true"></div>
+    </div>
+
+    <!-- Screen 2: Sean Challenge -->
+    <div id="screen-sean-challenge" class="screen sean-theme">
+        <button class="back-btn" onclick="goToScreen('vault')">← Back</button>
+        <h1 class="challenge-title">Sean's Gift is Almost Ready!</h1>
+        <p class="challenge-instruction">Kick the ball into the goal!</p>
+        <div class="football-pitch">
+            <div class="goal-posts">
+                <div class="goal-light left"></div>
+                <div class="goal-light right"></div>
+            </div>
+            <button id="football" class="football" onclick="kickBall()">⚽</button>
+        </div>
+        <div class="kick-counter">
+            <span id="kick-count">0</span> / 10 Goals
+        </div>
+        <button id="sean-unlock" class="unlock-btn hidden" onclick="goToScreen('sean-reveal')">
+            Open Your Gift!
+        </button>
+    </div>
+
+    <!-- Screen 3: Sean Reveal -->
+    <div id="screen-sean-reveal" class="screen sean-theme">
+        <button class="back-btn" onclick="goToScreen('vault')">← Back</button>
+        <div class="reveal-content">
+            <div class="gift-burst"></div>
+            <h1 class="reveal-title">EA FC 25</h1>
+            <p class="reveal-subtitle">Your game. Your team. Your turn to WIN!</p>
+            <div class="video-container">
+                <iframe
+                    src="https://www.youtube.com/embed/pBM2xyco_Kg?rel=0&modestbranding=1"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+        <div class="reveal-buttons">
+            <button class="secondary-btn" onclick="goToScreen('vault')">Back to Vault</button>
+            <button class="primary-btn" onclick="goToScreen('finale-sean')">Merry Christmas, Sean!</button>
+        </div>
+    </div>
+
+    <!-- Screen 4: Paloma Challenge -->
+    <div id="screen-paloma-challenge" class="screen paloma-theme">
+        <button class="back-btn" onclick="goToScreen('vault')">← Back</button>
+        <h1 class="challenge-title">Paloma's Gift is Almost Ready!</h1>
+        <p class="challenge-instruction">Tap the microphone to warm up!</p>
+        <div class="stage">
+            <div class="curtain left"></div>
+            <div class="curtain right"></div>
+            <div class="stage-lights"></div>
+            <button id="microphone" class="microphone" onclick="tapMic()">
+                🎤
+                <div class="mic-ribbon"></div>
+            </button>
+            <div id="notes-container" class="notes-container"></div>
+        </div>
+        <div class="tap-counter">
+            <span id="mic-count">0</span> / 5 Warm-ups
+        </div>
+        <button id="paloma-unlock" class="unlock-btn hidden" onclick="goToScreen('paloma-reveal')">
+            Open Your Gift!
+        </button>
+    </div>
+
+    <!-- Screen 5: Paloma Reveal -->
+    <div id="screen-paloma-reveal" class="screen paloma-theme">
+        <button class="back-btn" onclick="goToScreen('vault')">← Back</button>
+        <div class="reveal-content">
+            <div class="spotlight"></div>
+            <h1 class="reveal-title">Let's Sing</h1>
+            <p class="reveal-highlight">+ 2 Microphones!</p>
+            <p class="reveal-subtitle">Your voice. Your stage. Time to SHINE!</p>
+            <div class="video-container">
+                <iframe
+                    src="https://www.youtube.com/embed/LB4WpYcCoco?rel=0&modestbranding=1"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+        <div class="reveal-buttons">
+            <button class="secondary-btn" onclick="goToScreen('vault')">Back to Vault</button>
+            <button class="primary-btn" onclick="goToScreen('finale-paloma')">Merry Christmas, Paloma!</button>
+        </div>
+    </div>
+
+    <!-- Screen 6: Together Challenge -->
+    <div id="screen-together-challenge" class="screen together-theme">
+        <button class="back-btn" onclick="goToScreen('vault')">← Back</button>
+        <h1 class="challenge-title">This Gift Needs BOTH of You!</h1>
+        <p class="challenge-instruction">Tap your ornament at the SAME time!</p>
+        <div class="ornaments-container">
+            <button id="ornament-sean" class="ornament sean-ornament" onclick="tapOrnament('sean')">
+                <span class="ornament-letter">S</span>
+            </button>
+            <div class="ornament-connector"></div>
+            <button id="ornament-paloma" class="ornament paloma-ornament" onclick="tapOrnament('paloma')">
+                <span class="ornament-letter">P</span>
+            </button>
+        </div>
+        <p id="together-hint" class="together-hint">Both tap together!</p>
+        <button id="together-unlock" class="unlock-btn hidden" onclick="goToScreen('together-reveal')">
+            Open Your Gift!
+        </button>
+    </div>
+
+    <!-- Screen 7: Together Reveal -->
+    <div id="screen-together-reveal" class="screen together-theme">
+        <button class="back-btn" onclick="goToScreen('vault')">← Back</button>
+        <div class="reveal-content">
+            <div class="sackboy-entrance">
+                <div class="sackboy">🧸</div>
+            </div>
+            <h1 class="reveal-title">Sackboy: A Big Adventure</h1>
+            <p class="reveal-subtitle">For BOTH of you. Play together. Win together!</p>
+            <div class="video-container">
+                <iframe
+                    src="https://www.youtube.com/embed/s3BJSgaGNcc?rel=0&modestbranding=1"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+        <div class="reveal-buttons">
+            <button class="secondary-btn" onclick="goToScreen('vault')">Back to Vault</button>
+            <button class="primary-btn" onclick="goToScreen('finale-together')">Merry Christmas, Team!</button>
+        </div>
+    </div>
+
+    <!-- Screen 8: Finale -->
+    <div id="screen-finale" class="screen finale-theme">
+        <div id="confetti-container" class="confetti-container"></div>
+        <div class="finale-content">
+            <h1 class="finale-title" id="finale-title">Merry Christmas!</h1>
+            <p class="finale-names" id="finale-names">Sean & Paloma</p>
+            <p class="finale-message">We love you so much.<br>Have fun with your new games!</p>
+            <div class="finale-hearts">❤️ 🎄 ❤️</div>
+        </div>
+        <button class="vault-return-btn" onclick="goToScreen('vault')">
+            Back to Gift Vault
+        </button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
