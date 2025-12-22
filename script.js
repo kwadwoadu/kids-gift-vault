@@ -1,87 +1,179 @@
 /**
- * Kids Gift Vault - Interactive Christmas Gift Reveal
- * State machine + interactions for Sean (8) and Paloma (6)
+ * Kids Gift Vault v2.0 - Enhanced Christmas Gift Reveal
+ * Interactive games for Sean (8) and Paloma (6)
  */
 
 // ========================================
-// Audio Manager
+// Audio Manager (Enhanced)
 // ========================================
 
 const AudioManager = {
     enabled: true,
-    sounds: {},
     audioContext: null,
+    masterGain: null,
 
     init() {
-        // Create sounds using oscillator for now (fallback if no audio files)
-        // In production, replace with actual audio files
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.masterGain = this.audioContext.createGain();
+        this.masterGain.connect(this.audioContext.destination);
+        this.masterGain.gain.value = 0.5;
     },
 
-    // Simple beep sound generator
-    beep(frequency = 440, duration = 0.1, type = 'sine') {
-        if (!this.enabled || !this.audioContext) return;
-
-        // Resume audio context (required after user interaction)
-        if (this.audioContext.state === 'suspended') {
+    resume() {
+        if (this.audioContext && this.audioContext.state === 'suspended') {
             this.audioContext.resume();
         }
-
-        const oscillator = this.audioContext.createOscillator();
-        const gainNode = this.audioContext.createGain();
-
-        oscillator.connect(gainNode);
-        gainNode.connect(this.audioContext.destination);
-
-        oscillator.type = type;
-        oscillator.frequency.value = frequency;
-
-        gainNode.gain.setValueAtTime(0.3, this.audioContext.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
-
-        oscillator.start(this.audioContext.currentTime);
-        oscillator.stop(this.audioContext.currentTime + duration);
     },
 
+    // Play a musical note with envelope
+    playNote(frequency, duration = 0.3, type = 'sine', volume = 0.3) {
+        if (!this.enabled || !this.audioContext) return;
+        this.resume();
+
+        const osc = this.audioContext.createOscillator();
+        const gain = this.audioContext.createGain();
+
+        osc.type = type;
+        osc.frequency.value = frequency;
+        osc.connect(gain);
+        gain.connect(this.masterGain);
+
+        const now = this.audioContext.currentTime;
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(volume, now + 0.02);
+        gain.gain.linearRampToValueAtTime(volume * 0.3, now + duration * 0.5);
+        gain.gain.linearRampToValueAtTime(0, now + duration);
+
+        osc.start(now);
+        osc.stop(now + duration);
+    },
+
+    // Play chord
+    playChord(frequencies, duration = 0.5) {
+        frequencies.forEach(f => this.playNote(f, duration, 'sine', 0.15));
+    },
+
+    // Simple click
     playClick() {
-        this.beep(800, 0.05, 'sine');
+        this.playNote(800, 0.05, 'sine', 0.2);
     },
 
+    // Whistle sound for penalty
+    playWhistle() {
+        this.playNote(1200, 0.15, 'sine', 0.4);
+        setTimeout(() => this.playNote(1400, 0.1, 'sine', 0.3), 100);
+    },
+
+    // Ball kick sound
+    playKick() {
+        this.playNote(150, 0.1, 'triangle', 0.5);
+        this.playNote(100, 0.15, 'sine', 0.3);
+    },
+
+    // Goal celebration with crowd roar
     playGoal() {
-        // Celebratory sound - ascending notes
-        this.beep(523, 0.1); // C
-        setTimeout(() => this.beep(659, 0.1), 100); // E
-        setTimeout(() => this.beep(784, 0.1), 200); // G
-        setTimeout(() => this.beep(1047, 0.2), 300); // High C
+        // Ascending celebratory notes
+        const notes = [523, 659, 784, 1047];
+        notes.forEach((n, i) => {
+            setTimeout(() => this.playNote(n, 0.2, 'triangle', 0.4), i * 100);
+        });
+
+        // Crowd roar effect (filtered noise)
+        this.playCrowdRoar();
     },
 
-    playMicTap() {
-        // Musical note
-        const notes = [523, 587, 659, 698, 784]; // C, D, E, F, G
-        const note = notes[Math.floor(Math.random() * notes.length)];
-        this.beep(note, 0.3, 'triangle');
+    // Crowd roar (white noise with filter)
+    playCrowdRoar() {
+        if (!this.enabled || !this.audioContext) return;
+        this.resume();
+
+        const bufferSize = this.audioContext.sampleRate * 1.5;
+        const buffer = this.audioContext.createBuffer(1, bufferSize, this.audioContext.sampleRate);
+        const data = buffer.getChannelData(0);
+
+        for (let i = 0; i < bufferSize; i++) {
+            data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.audioContext.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.audioContext.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 600;
+
+        const gain = this.audioContext.createGain();
+        const now = this.audioContext.currentTime;
+        gain.gain.setValueAtTime(0, now);
+        gain.gain.linearRampToValueAtTime(0.15, now + 0.3);
+        gain.gain.linearRampToValueAtTime(0, now + 1.5);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.masterGain);
+
+        noise.start();
     },
 
-    playMagic() {
-        // Magical chime - descending sparkle
-        this.beep(1318, 0.1);
-        setTimeout(() => this.beep(1174, 0.1), 80);
-        setTimeout(() => this.beep(987, 0.1), 160);
-        setTimeout(() => this.beep(880, 0.15), 240);
+    // Save/miss sound
+    playSave() {
+        this.playNote(200, 0.2, 'sawtooth', 0.3);
+        setTimeout(() => this.playNote(150, 0.3, 'sawtooth', 0.2), 150);
     },
 
-    playSuccess() {
-        // Victory fanfare
-        this.beep(784, 0.15);
-        setTimeout(() => this.beep(784, 0.15), 180);
-        setTimeout(() => this.beep(784, 0.15), 360);
-        setTimeout(() => this.beep(1047, 0.3), 540);
+    // Jingle Bells melody note
+    playMelodyNote(frequency, duration = 0.4) {
+        // Main note
+        this.playNote(frequency, duration, 'sine', 0.4);
+        // Add shimmer
+        this.playNote(frequency * 2, duration * 0.5, 'triangle', 0.1);
     },
 
-    playFail() {
-        // Gentle "try again" sound
-        this.beep(300, 0.15);
-        setTimeout(() => this.beep(250, 0.2), 150);
+    // Magical sparkle
+    playSparkle() {
+        const notes = [1318, 1568, 1760];
+        notes.forEach((n, i) => {
+            setTimeout(() => this.playNote(n, 0.15, 'sine', 0.2), i * 50);
+        });
+    },
+
+    // Grand finale for Paloma
+    playGrandFinale() {
+        // Chord progression
+        this.playChord([523, 659, 784], 0.5);
+        setTimeout(() => this.playChord([587, 740, 880], 0.5), 400);
+        setTimeout(() => this.playChord([659, 784, 1047], 0.8), 800);
+        setTimeout(() => this.playSparkle(), 1200);
+    },
+
+    // Portal charging sound
+    playPortalCharge() {
+        this.playNote(220, 0.5, 'sine', 0.2);
+        this.playNote(330, 0.5, 'triangle', 0.15);
+    },
+
+    // Portal step complete
+    playPortalStep() {
+        const notes = [440, 554, 659];
+        notes.forEach((n, i) => {
+            setTimeout(() => this.playNote(n, 0.2, 'triangle', 0.3), i * 80);
+        });
+    },
+
+    // Portal open magic
+    playPortalOpen() {
+        const notes = [220, 277, 330, 440, 554, 659, 880];
+        notes.forEach((n, i) => {
+            setTimeout(() => this.playNote(n, 0.4, 'triangle', 0.25), i * 100);
+        });
+    },
+
+    // Victory fanfare
+    playVictory() {
+        this.playChord([523, 659, 784], 0.3);
+        setTimeout(() => this.playChord([523, 659, 784], 0.3), 300);
+        setTimeout(() => this.playChord([523, 659, 784], 0.3), 600);
+        setTimeout(() => this.playChord([659, 784, 1047], 0.6), 900);
     },
 
     toggle() {
@@ -95,17 +187,12 @@ const AudioManager = {
 // ========================================
 
 let currentScreen = 'welcome';
-let kickCount = 0;
-let micCount = 0;
-let ornamentTaps = { sean: 0, paloma: 0 };
-let ornamentTimeout = null;
 
 // ========================================
 // Screen Navigation
 // ========================================
 
 function goToScreen(screenId) {
-    // Handle finale variants
     let actualScreenId = screenId;
     let finaleFor = null;
 
@@ -126,161 +213,519 @@ function goToScreen(screenId) {
         newEl.classList.add('active');
         currentScreen = actualScreenId;
 
-        // Play click sound
         AudioManager.playClick();
 
-        // Special handling for finale
-        if (actualScreenId === 'finale') {
+        // Initialize games when entering challenge screens
+        if (actualScreenId === 'sean-challenge') {
+            SeanGame.init();
+        } else if (actualScreenId === 'paloma-challenge') {
+            PalomaGame.init();
+        } else if (actualScreenId === 'together-challenge') {
+            PortalGame.init();
+        } else if (actualScreenId === 'finale') {
             showFinale(finaleFor);
-        }
-
-        // Reset challenge states when going back to vault
-        if (actualScreenId === 'vault') {
-            resetChallenges();
+        } else if (actualScreenId === 'vault') {
+            resetAllGames();
         }
     }
 }
 
-function resetChallenges() {
-    // Reset Sean's challenge
-    kickCount = 0;
-    document.getElementById('kick-count').textContent = '0';
-    document.getElementById('sean-unlock').classList.add('hidden');
-
-    // Reset Paloma's challenge
-    micCount = 0;
-    document.getElementById('mic-count').textContent = '0';
-    document.getElementById('paloma-unlock').classList.add('hidden');
-    document.getElementById('notes-container').innerHTML = '';
-
-    // Reset Together challenge
-    ornamentTaps = { sean: 0, paloma: 0 };
-    document.getElementById('together-unlock').classList.add('hidden');
-    document.getElementById('together-hint').textContent = 'Both tap together!';
-    document.getElementById('together-hint').className = 'together-hint';
+function resetAllGames() {
+    SeanGame.reset();
+    PalomaGame.reset();
+    PortalGame.reset();
 }
 
 // ========================================
-// Sean's Football Challenge
+// Sean's Penalty Shootout Game
 // ========================================
 
-function kickBall() {
-    if (kickCount >= 10) return;
+const SeanGame = {
+    goals: 0,
+    attempts: 7,
+    targetGoals: 5,
+    keeperPosition: 'center',
+    keeperInterval: null,
+    isKicking: false,
+    gameOver: false,
 
-    const football = document.getElementById('football');
-    football.classList.add('kick');
+    init() {
+        this.reset();
+        this.startKeeperMovement();
+    },
 
-    setTimeout(() => {
-        football.classList.remove('kick');
-    }, 300);
+    reset() {
+        this.goals = 0;
+        this.attempts = 7;
+        this.isKicking = false;
+        this.gameOver = false;
 
-    kickCount++;
-    document.getElementById('kick-count').textContent = kickCount;
+        if (this.keeperInterval) {
+            clearInterval(this.keeperInterval);
+            this.keeperInterval = null;
+        }
 
-    if (kickCount < 10) {
-        AudioManager.playClick();
-    }
+        // Reset UI
+        document.getElementById('sean-goals').textContent = '0';
+        document.getElementById('kicks-left').textContent = '7';
+        document.getElementById('sean-unlock').classList.add('hidden');
+        document.getElementById('goal-text').classList.add('hidden');
+        document.getElementById('save-text').classList.add('hidden');
 
-    if (kickCount === 10) {
-        // Goal celebration!
-        AudioManager.playGoal();
+        // Reset goalkeeper
+        const keeper = document.getElementById('goalkeeper');
+        keeper.classList.remove('dive-left', 'dive-right');
+        keeper.style.left = '50%';
+
+        // Reset aim buttons
+        document.querySelectorAll('.aim-btn').forEach(btn => btn.classList.remove('selected'));
+    },
+
+    startKeeperMovement() {
+        const positions = ['left', 'center', 'right'];
+        const keeper = document.getElementById('goalkeeper');
+
+        this.keeperInterval = setInterval(() => {
+            if (this.isKicking || this.gameOver) return;
+
+            this.keeperPosition = positions[Math.floor(Math.random() * 3)];
+
+            // Move keeper visually
+            switch (this.keeperPosition) {
+                case 'left':
+                    keeper.style.left = '25%';
+                    break;
+                case 'center':
+                    keeper.style.left = '50%';
+                    break;
+                case 'right':
+                    keeper.style.left = '75%';
+                    break;
+            }
+        }, 800);
+    },
+
+    aim(direction) {
+        if (this.isKicking || this.gameOver || this.attempts <= 0) return;
+
+        // Highlight selected aim
+        document.querySelectorAll('.aim-btn').forEach(btn => btn.classList.remove('selected'));
+        document.querySelector(`.aim-btn[data-aim="${direction}"]`).classList.add('selected');
+
+        // Kick after short delay
+        setTimeout(() => this.kick(direction), 200);
+    },
+
+    kick(direction) {
+        if (this.isKicking || this.gameOver) return;
+
+        this.isKicking = true;
+        this.attempts--;
+
+        document.getElementById('kicks-left').textContent = this.attempts;
+
+        // Play kick sound
+        AudioManager.playKick();
+
+        // Animate ball
+        const ball = document.getElementById('ball');
+        ball.classList.add(`kick-${direction}`);
+
+        // Keeper dives to try to save
+        const keeper = document.getElementById('goalkeeper');
+        const keeperDive = this.keeperPosition;
+
+        // Determine if goal
+        const isGoal = direction !== keeperDive;
+
+        // Show keeper dive animation
+        if (keeperDive === 'left') {
+            keeper.classList.add('dive-left');
+        } else if (keeperDive === 'right') {
+            keeper.classList.add('dive-right');
+        }
+
+        // Show result after ball animation
+        setTimeout(() => {
+            if (isGoal) {
+                this.goals++;
+                document.getElementById('sean-goals').textContent = this.goals;
+
+                // Show GOAL text
+                const goalText = document.getElementById('goal-text');
+                goalText.classList.remove('hidden');
+                AudioManager.playGoal();
+
+                setTimeout(() => goalText.classList.add('hidden'), 1500);
+
+                // Check win
+                if (this.goals >= this.targetGoals) {
+                    this.win();
+                }
+            } else {
+                // Show SAVED text
+                const saveText = document.getElementById('save-text');
+                saveText.classList.remove('hidden');
+                AudioManager.playSave();
+
+                setTimeout(() => saveText.classList.add('hidden'), 1500);
+            }
+
+            // Reset for next kick
+            setTimeout(() => {
+                ball.classList.remove('kick-left', 'kick-center', 'kick-right');
+                keeper.classList.remove('dive-left', 'dive-right');
+                keeper.style.left = '50%';
+                document.querySelectorAll('.aim-btn').forEach(btn => btn.classList.remove('selected'));
+
+                this.isKicking = false;
+
+                // Check if out of attempts
+                if (this.attempts <= 0 && this.goals < this.targetGoals) {
+                    this.lose();
+                }
+            }, 800);
+        }, 500);
+    },
+
+    win() {
+        this.gameOver = true;
+        if (this.keeperInterval) clearInterval(this.keeperInterval);
+
         createConfetti();
+        AudioManager.playVictory();
 
         setTimeout(() => {
             document.getElementById('sean-unlock').classList.remove('hidden');
-            AudioManager.playSuccess();
-        }, 500);
+        }, 1000);
+    },
+
+    lose() {
+        // Give another chance - reset attempts
+        this.attempts = 3;
+        document.getElementById('kicks-left').textContent = '3';
+
+        // Show encouraging message (could add UI for this)
+        console.log('Almost! Try again with 3 more kicks!');
     }
-}
+};
 
 // ========================================
-// Paloma's Microphone Challenge
+// Paloma's Jingle Bells Melody Game
 // ========================================
 
-function tapMic() {
-    if (micCount >= 5) return;
+const PalomaGame = {
+    currentNote: 0,
+    totalNotes: 8,
+    isPlaying: false,
 
-    // Create floating music note
-    const notesContainer = document.getElementById('notes-container');
-    const notes = ['🎵', '🎶', '✨', '⭐', '🌟'];
-    const note = document.createElement('span');
-    note.className = 'music-note';
-    note.textContent = notes[Math.floor(Math.random() * notes.length)];
-    note.style.left = `${30 + Math.random() * 40}%`;
-    note.style.bottom = '30%';
-    notesContainer.appendChild(note);
+    // Jingle Bells melody
+    melody: [
+        { note: 659, lyric: 'Jin-', duration: 0.3 },      // E4
+        { note: 659, lyric: 'gle', duration: 0.3 },       // E4
+        { note: 659, lyric: 'Bells', duration: 0.5 },     // E4
+        { note: 659, lyric: 'Jin-', duration: 0.3 },      // E4
+        { note: 659, lyric: 'gle', duration: 0.3 },       // E4
+        { note: 659, lyric: 'Bells', duration: 0.5 },     // E4
+        { note: 659, lyric: 'Jin-gle', duration: 0.3 },   // E4
+        { note: 784, lyric: 'all the way!', duration: 0.8, finale: true } // G4
+    ],
 
-    // Remove note after animation
-    setTimeout(() => {
-        note.remove();
-    }, 1500);
+    init() {
+        this.reset();
+    },
 
-    AudioManager.playMicTap();
+    reset() {
+        this.currentNote = 0;
+        this.isPlaying = false;
 
-    micCount++;
-    document.getElementById('mic-count').textContent = micCount;
+        // Reset UI
+        document.getElementById('melody-progress').textContent = 'Tap to start!';
+        document.getElementById('lyrics-display').textContent = '';
+        document.getElementById('paloma-unlock').classList.add('hidden');
 
-    if (micCount === 5) {
-        // Stage celebration!
+        // Reset stars
+        document.querySelectorAll('#star-progress .star').forEach(star => {
+            star.classList.remove('lit');
+            star.textContent = '\u2606';
+        });
+
+        // Reset stage
+        document.querySelector('.stage-enhanced').classList.remove('active');
+    },
+
+    tap() {
+        if (this.currentNote >= this.totalNotes) return;
+
+        const noteData = this.melody[this.currentNote];
+
+        // Play the note
+        AudioManager.playMelodyNote(noteData.note, noteData.duration);
+
+        // Show lyric
+        const lyricsDisplay = document.getElementById('lyrics-display');
+        lyricsDisplay.textContent = noteData.lyric;
+
+        // Light up star
+        const star = document.querySelector(`.star[data-index="${this.currentNote}"]`);
+        if (star) {
+            star.classList.add('lit');
+            star.textContent = '\u2605';
+        }
+
+        // Add sparkles
+        this.createSparkles();
+
+        // Create floating music note
+        this.createFloatingNote();
+
+        // Activate stage
+        document.querySelector('.stage-enhanced').classList.add('active');
+
+        // Update progress
+        this.currentNote++;
+        const remaining = this.totalNotes - this.currentNote;
+        if (remaining > 0) {
+            document.getElementById('melody-progress').textContent = `${remaining} notes left!`;
+        }
+
+        // Check if complete
+        if (this.currentNote >= this.totalNotes) {
+            this.complete();
+        }
+    },
+
+    createSparkles() {
+        const container = document.getElementById('sparkle-container');
+        const sparkles = ['\u2728', '\u2B50', '\u2727', '\u26A1'];
+
+        for (let i = 0; i < 5; i++) {
+            const sparkle = document.createElement('span');
+            sparkle.className = 'sparkle';
+            sparkle.textContent = sparkles[Math.floor(Math.random() * sparkles.length)];
+            sparkle.style.left = `${20 + Math.random() * 60}%`;
+            sparkle.style.top = `${20 + Math.random() * 60}%`;
+            container.appendChild(sparkle);
+
+            setTimeout(() => sparkle.remove(), 1000);
+        }
+    },
+
+    createFloatingNote() {
+        const container = document.getElementById('notes-container');
+        const notes = ['\uD83C\uDFB5', '\uD83C\uDFB6', '\u2728', '\u2B50'];
+
+        const note = document.createElement('span');
+        note.className = 'music-note';
+        note.textContent = notes[Math.floor(Math.random() * notes.length)];
+        note.style.left = `${30 + Math.random() * 40}%`;
+        note.style.bottom = '40%';
+        container.appendChild(note);
+
+        setTimeout(() => note.remove(), 1500);
+    },
+
+    complete() {
+        document.getElementById('melody-progress').textContent = 'Perfect!';
+
+        // Grand finale
+        AudioManager.playGrandFinale();
         createConfetti();
 
         setTimeout(() => {
             document.getElementById('paloma-unlock').classList.remove('hidden');
-            AudioManager.playSuccess();
-        }, 500);
+            AudioManager.playVictory();
+        }, 1500);
     }
-}
+};
 
 // ========================================
-// Together's Co-op Challenge
+// Together's Magic Portal Game
 // ========================================
 
-function tapOrnament(who) {
-    const ornament = document.getElementById(`ornament-${who}`);
-    ornament.classList.add('tapped');
+const PortalGame = {
+    currentStep: 1,
+    seanPressed: false,
+    palomaPressed: false,
+    holdProgress: 0,
+    holdInterval: null,
+    stepTimeout: null,
+    gameComplete: false,
 
-    setTimeout(() => {
-        ornament.classList.remove('tapped');
-    }, 500);
+    init() {
+        this.reset();
+    },
 
-    const now = Date.now();
-    ornamentTaps[who] = now;
+    reset() {
+        this.currentStep = 1;
+        this.seanPressed = false;
+        this.palomaPressed = false;
+        this.holdProgress = 0;
+        this.gameComplete = false;
 
-    AudioManager.playClick();
+        if (this.holdInterval) clearInterval(this.holdInterval);
+        if (this.stepTimeout) clearTimeout(this.stepTimeout);
 
-    // Check if both tapped within 2 seconds
-    const other = who === 'sean' ? 'paloma' : 'sean';
-    const timeDiff = Math.abs(ornamentTaps[who] - ornamentTaps[other]);
+        // Reset UI
+        document.getElementById('power-fill').style.width = '0%';
+        document.getElementById('portal-progress').style.height = '0%';
+        document.getElementById('portal-instruction').textContent = 'Both hold your orbs for 3 seconds!';
+        document.getElementById('portal-instruction').classList.remove('success');
+        document.getElementById('together-unlock').classList.add('hidden');
+        document.getElementById('sackboy-reveal').classList.add('hidden');
 
-    if (ornamentTaps[other] > 0 && timeDiff < 2000) {
-        // Success!
-        const hint = document.getElementById('together-hint');
-        hint.textContent = 'You did it together!';
-        hint.className = 'together-hint success';
+        // Reset steps
+        document.querySelectorAll('.step').forEach(s => {
+            s.classList.remove('active', 'complete');
+        });
+        document.querySelector('.step[data-step="1"]').classList.add('active');
 
-        AudioManager.playMagic();
-        createConfetti();
+        // Reset orbs
+        document.querySelectorAll('.magic-orb').forEach(orb => {
+            orb.classList.remove('active', 'pressed');
+        });
+
+        // Reset portal
+        document.getElementById('portal').classList.remove('charging', 'open');
+    },
+
+    orbPress(who) {
+        if (this.gameComplete) return;
+
+        if (who === 'sean') {
+            this.seanPressed = true;
+            document.getElementById('sean-orb').classList.add('pressed');
+        } else {
+            this.palomaPressed = true;
+            document.getElementById('paloma-orb').classList.add('pressed');
+        }
+
+        AudioManager.playClick();
+
+        // Handle based on current step
+        if (this.currentStep === 1) {
+            this.checkStep1();
+        } else if (this.currentStep === 3) {
+            this.checkStep3();
+        }
+    },
+
+    orbRelease(who) {
+        if (this.gameComplete) return;
+
+        if (who === 'sean') {
+            this.seanPressed = false;
+            document.getElementById('sean-orb').classList.remove('pressed', 'active');
+        } else {
+            this.palomaPressed = false;
+            document.getElementById('paloma-orb').classList.remove('pressed', 'active');
+        }
+
+        // If Step 1, reset hold progress
+        if (this.currentStep === 1 && this.holdInterval) {
+            clearInterval(this.holdInterval);
+            this.holdInterval = null;
+
+            // Reset progress if not complete
+            if (this.holdProgress < 100) {
+                this.holdProgress = 0;
+                document.getElementById('power-fill').style.width = '0%';
+                document.getElementById('portal-progress').style.height = '0%';
+                document.getElementById('portal').classList.remove('charging');
+            }
+        }
+    },
+
+    checkStep1() {
+        // Both must be pressed
+        if (this.seanPressed && this.palomaPressed) {
+            // Start hold timer
+            document.getElementById('sean-orb').classList.add('active');
+            document.getElementById('paloma-orb').classList.add('active');
+            document.getElementById('portal').classList.add('charging');
+
+            AudioManager.playPortalCharge();
+
+            this.holdInterval = setInterval(() => {
+                if (this.seanPressed && this.palomaPressed) {
+                    this.holdProgress += 3.33; // 3 seconds = 100%
+                    document.getElementById('power-fill').style.width = `${this.holdProgress}%`;
+                    document.getElementById('portal-progress').style.height = `${this.holdProgress}%`;
+
+                    if (this.holdProgress >= 100) {
+                        clearInterval(this.holdInterval);
+                        this.completeStep(1);
+                    }
+                }
+            }, 100);
+        }
+    },
+
+    checkStep3() {
+        // Both must tap within 1 second
+        if (!this.stepTimeout) {
+            this.stepTimeout = setTimeout(() => {
+                this.stepTimeout = null;
+                this.seanPressed = false;
+                this.palomaPressed = false;
+            }, 1000);
+        }
+
+        if (this.seanPressed && this.palomaPressed) {
+            if (this.stepTimeout) clearTimeout(this.stepTimeout);
+            this.completeStep(3);
+        }
+    },
+
+    completeStep(step) {
+        AudioManager.playPortalStep();
+
+        // Mark step complete
+        document.querySelector(`.step[data-step="${step}"]`).classList.remove('active');
+        document.querySelector(`.step[data-step="${step}"]`).classList.add('complete');
+
+        if (step === 1) {
+            // Move to step 2 (we'll simplify to just tap)
+            this.currentStep = 2;
+            document.querySelector('.step[data-step="2"]').classList.add('active');
+            document.getElementById('portal-instruction').textContent = 'Now both tap together!';
+
+            // For simplicity, skip step 2 swipe and go to step 3 tap
+            setTimeout(() => {
+                document.querySelector('.step[data-step="2"]').classList.remove('active');
+                document.querySelector('.step[data-step="2"]').classList.add('complete');
+                this.currentStep = 3;
+                document.querySelector('.step[data-step="3"]').classList.add('active');
+                document.getElementById('portal-instruction').textContent = 'Final tap together!';
+            }, 500);
+
+        } else if (step === 3) {
+            this.openPortal();
+        }
+    },
+
+    openPortal() {
+        this.gameComplete = true;
+
+        // Portal open animation
+        document.getElementById('portal').classList.add('open');
+        AudioManager.playPortalOpen();
 
         setTimeout(() => {
-            document.getElementById('together-unlock').classList.remove('hidden');
-            AudioManager.playSuccess();
+            // Reveal Sackboy
+            document.getElementById('sackboy-reveal').classList.remove('hidden');
+            document.getElementById('portal-instruction').textContent = 'You did it together!';
+            document.getElementById('portal-instruction').classList.add('success');
+
+            createConfetti();
+            AudioManager.playVictory();
+
+            setTimeout(() => {
+                document.getElementById('together-unlock').classList.remove('hidden');
+            }, 1000);
         }, 500);
-    } else if (ornamentTaps.sean > 0 && ornamentTaps.paloma > 0 && timeDiff >= 2000) {
-        // Failed - taps too far apart
-        const hint = document.getElementById('together-hint');
-        hint.textContent = 'Try again together!';
-        hint.className = 'together-hint fail';
-
-        AudioManager.playFail();
-
-        // Reset after shake animation
-        setTimeout(() => {
-            ornamentTaps = { sean: 0, paloma: 0 };
-            hint.textContent = 'Both tap together!';
-            hint.className = 'together-hint';
-        }, 1000);
     }
-}
+};
 
 // ========================================
 // Finale Screen
@@ -301,9 +746,8 @@ function showFinale(who) {
         names.textContent = 'Sean & Paloma';
     }
 
-    // Trigger confetti
     createConfetti();
-    AudioManager.playSuccess();
+    AudioManager.playVictory();
 }
 
 // ========================================
@@ -325,17 +769,13 @@ function createConfetti() {
         confetti.style.setProperty('--fall-time', `${2 + Math.random() * 2}s`);
         confetti.style.animationDelay = `${Math.random() * 0.5}s`;
 
-        // Random shape
         if (Math.random() > 0.5) {
             confetti.style.borderRadius = '50%';
         }
 
         container.appendChild(confetti);
 
-        // Remove after animation
-        setTimeout(() => {
-            confetti.remove();
-        }, 4000);
+        setTimeout(() => confetti.remove(), 4000);
     }
 }
 
@@ -345,7 +785,7 @@ function createConfetti() {
 
 function createSnowfall() {
     const container = document.getElementById('snowfall');
-    const flakes = ['❄', '❅', '❆', '•'];
+    const flakes = ['\u2744', '\u2745', '\u2746', '\u2022'];
 
     for (let i = 0; i < 30; i++) {
         const snowflake = document.createElement('span');
@@ -393,10 +833,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // First interaction to enable audio
     document.body.addEventListener('click', () => {
-        if (AudioManager.audioContext && AudioManager.audioContext.state === 'suspended') {
-            AudioManager.audioContext.resume();
-        }
+        AudioManager.resume();
     }, { once: true });
 
-    console.log('Gift Vault initialized! Merry Christmas, Sean & Paloma! 🎄');
+    // Prevent context menu on long press (mobile)
+    document.addEventListener('contextmenu', e => e.preventDefault());
+
+    console.log('Gift Vault v2.0 initialized! Merry Christmas, Sean & Paloma! \uD83C\uDF84');
 });

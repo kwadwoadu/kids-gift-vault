@@ -60,21 +60,62 @@
         <div class="fairy-lights" aria-hidden="true"></div>
     </div>
 
-    <!-- Screen 2: Sean Challenge -->
+    <!-- Screen 2: Sean Challenge - Penalty Shootout -->
     <div id="screen-sean-challenge" class="screen sean-theme">
         <button class="back-btn" onclick="goToScreen('vault')">← Back</button>
-        <h1 class="challenge-title">Sean's Gift is Almost Ready!</h1>
-        <p class="challenge-instruction">Kick the ball into the goal!</p>
-        <div class="football-pitch">
-            <div class="goal-posts">
-                <div class="goal-light left"></div>
-                <div class="goal-light right"></div>
+        <h1 class="challenge-title">Beat the Goalkeeper!</h1>
+        <p class="challenge-instruction">Score 5 goals to unlock your gift!</p>
+
+        <div class="stadium">
+            <div class="stadium-lights">
+                <div class="light l1"></div>
+                <div class="light l2"></div>
+                <div class="light l3"></div>
+                <div class="light l4"></div>
             </div>
-            <button id="football" class="football" onclick="kickBall()">⚽</button>
+            <div class="goal-frame">
+                <div class="goal-net"></div>
+                <div class="goal-zones">
+                    <div class="zone left"></div>
+                    <div class="zone center"></div>
+                    <div class="zone right"></div>
+                </div>
+                <div id="goalkeeper" class="goalkeeper">🧤</div>
+                <div id="goal-text" class="goal-text hidden">GOAL!</div>
+                <div id="save-text" class="save-text hidden">SAVED!</div>
+            </div>
+            <div class="pitch">
+                <div class="pitch-line center-circle"></div>
+                <div class="penalty-spot"></div>
+                <div id="ball" class="ball">⚽</div>
+            </div>
         </div>
-        <div class="kick-counter">
-            <span id="kick-count">0</span> / 10 Goals
+
+        <div class="aim-buttons">
+            <button class="aim-btn" data-aim="left" onclick="SeanGame.aim('left')">
+                <span class="aim-arrow">⬅️</span>
+                <span class="aim-label">LEFT</span>
+            </button>
+            <button class="aim-btn" data-aim="center" onclick="SeanGame.aim('center')">
+                <span class="aim-arrow">⬆️</span>
+                <span class="aim-label">CENTER</span>
+            </button>
+            <button class="aim-btn" data-aim="right" onclick="SeanGame.aim('right')">
+                <span class="aim-arrow">➡️</span>
+                <span class="aim-label">RIGHT</span>
+            </button>
         </div>
+
+        <div class="scoreboard">
+            <div class="score-display">
+                <span id="sean-goals" class="goals">0</span>
+                <span class="score-divider">/</span>
+                <span class="target">5</span>
+                <span class="score-label">Goals</span>
+            </div>
+            <div id="attempts-display" class="attempts">Kicks left: <span id="kicks-left">7</span></div>
+        </div>
+
         <button id="sean-unlock" class="unlock-btn hidden" onclick="goToScreen('sean-reveal')">
             Open Your Gift!
         </button>
@@ -102,24 +143,48 @@
         </div>
     </div>
 
-    <!-- Screen 4: Paloma Challenge -->
+    <!-- Screen 4: Paloma Challenge - Jingle Bells Melody -->
     <div id="screen-paloma-challenge" class="screen paloma-theme">
         <button class="back-btn" onclick="goToScreen('vault')">← Back</button>
-        <h1 class="challenge-title">Paloma's Gift is Almost Ready!</h1>
-        <p class="challenge-instruction">Tap the microphone to warm up!</p>
-        <div class="stage">
+        <h1 class="challenge-title">Build the Magic Melody!</h1>
+        <p class="challenge-instruction">Tap to sing Jingle Bells!</p>
+
+        <div class="stage-enhanced">
             <div class="curtain left"></div>
             <div class="curtain right"></div>
-            <div class="stage-lights"></div>
-            <button id="microphone" class="microphone" onclick="tapMic()">
+            <div class="spotlight"></div>
+            <div class="sound-waves">
+                <div class="wave w1"></div>
+                <div class="wave w2"></div>
+                <div class="wave w3"></div>
+            </div>
+
+            <div class="star-progress" id="star-progress">
+                <span class="star" data-index="0">☆</span>
+                <span class="star" data-index="1">☆</span>
+                <span class="star" data-index="2">☆</span>
+                <span class="star" data-index="3">☆</span>
+                <span class="star" data-index="4">☆</span>
+                <span class="star" data-index="5">☆</span>
+                <span class="star" data-index="6">☆</span>
+                <span class="star" data-index="7">☆</span>
+            </div>
+
+            <div id="lyrics-display" class="lyrics-display"></div>
+
+            <button id="microphone" class="microphone-enhanced" onclick="PalomaGame.tap()">
                 🎤
-                <div class="mic-ribbon"></div>
+                <div class="mic-glow"></div>
+                <div id="sparkle-container" class="sparkle-container"></div>
             </button>
+
             <div id="notes-container" class="notes-container"></div>
         </div>
+
         <div class="tap-counter">
-            <span id="mic-count">0</span> / 5 Warm-ups
+            <span id="melody-progress">Tap to start!</span>
         </div>
+
         <button id="paloma-unlock" class="unlock-btn hidden" onclick="goToScreen('paloma-reveal')">
             Open Your Gift!
         </button>
@@ -148,21 +213,57 @@
         </div>
     </div>
 
-    <!-- Screen 6: Together Challenge -->
+    <!-- Screen 6: Together Challenge - Magic Portal -->
     <div id="screen-together-challenge" class="screen together-theme">
         <button class="back-btn" onclick="goToScreen('vault')">← Back</button>
-        <h1 class="challenge-title">This Gift Needs BOTH of You!</h1>
-        <p class="challenge-instruction">Tap your ornament at the SAME time!</p>
-        <div class="ornaments-container">
-            <button id="ornament-sean" class="ornament sean-ornament" onclick="tapOrnament('sean')">
-                <span class="ornament-letter">S</span>
+        <h1 class="challenge-title">Open the Magic Portal!</h1>
+
+        <div class="step-indicator">
+            <span class="step active" data-step="1">1. Hold</span>
+            <span class="step-arrow">→</span>
+            <span class="step" data-step="2">2. Swipe</span>
+            <span class="step-arrow">→</span>
+            <span class="step" data-step="3">3. Tap!</span>
+        </div>
+
+        <div class="portal-arena">
+            <button id="sean-orb" class="magic-orb sean-orb"
+                    ontouchstart="PortalGame.orbPress('sean')"
+                    ontouchend="PortalGame.orbRelease('sean')"
+                    onmousedown="PortalGame.orbPress('sean')"
+                    onmouseup="PortalGame.orbRelease('sean')">
+                <span class="orb-initial">S</span>
+                <div class="energy-stream sean-stream"></div>
             </button>
-            <div class="ornament-connector"></div>
-            <button id="ornament-paloma" class="ornament paloma-ornament" onclick="tapOrnament('paloma')">
-                <span class="ornament-letter">P</span>
+
+            <div id="portal" class="magic-portal">
+                <div class="portal-ring ring-1"></div>
+                <div class="portal-ring ring-2"></div>
+                <div class="portal-ring ring-3"></div>
+                <div class="portal-center">
+                    <div id="portal-progress" class="portal-progress"></div>
+                </div>
+                <div id="sackboy-reveal" class="sackboy hidden">🧸</div>
+            </div>
+
+            <button id="paloma-orb" class="magic-orb paloma-orb"
+                    ontouchstart="PortalGame.orbPress('paloma')"
+                    ontouchend="PortalGame.orbRelease('paloma')"
+                    onmousedown="PortalGame.orbPress('paloma')"
+                    onmouseup="PortalGame.orbRelease('paloma')">
+                <span class="orb-initial">P</span>
+                <div class="energy-stream paloma-stream"></div>
             </button>
         </div>
-        <p id="together-hint" class="together-hint">Both tap together!</p>
+
+        <div class="magic-power-bar">
+            <div id="power-fill" class="power-fill"></div>
+        </div>
+
+        <p id="portal-instruction" class="portal-instruction">
+            Both hold your orbs for 3 seconds!
+        </p>
+
         <button id="together-unlock" class="unlock-btn hidden" onclick="goToScreen('together-reveal')">
             Open Your Gift!
         </button>

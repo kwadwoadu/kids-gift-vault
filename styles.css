@@ -1,5 +1,5 @@
 /* ========================================
-   Kids Gift Vault - Christmas Theme
+   Kids Gift Vault v2.0 - Enhanced Experiences
    Mobile-first interactive gift reveal
    ======================================== */
 
@@ -27,6 +27,8 @@
 
     /* Together Colors */
     --together-purple: #8A2BE2;
+    --portal-blue: #00BFFF;
+    --portal-purple: #9400D3;
 
     /* Backgrounds */
     --bg-dark: #1a1a2e;
@@ -99,7 +101,7 @@ body {
 }
 
 .together-theme {
-    background: linear-gradient(180deg, var(--christmas-red-dark) 0%, var(--christmas-green-dark) 100%);
+    background: linear-gradient(180deg, #1a1a3a 0%, #0d0d2a 100%);
 }
 
 .finale-theme {
@@ -213,7 +215,7 @@ body {
 }
 
 .christmas-tree::before {
-    content: '⭐';
+    content: '';
     position: absolute;
     top: -25px;
     left: 50%;
@@ -230,7 +232,7 @@ body {
 }
 
 .presents-pile::before {
-    content: '🎁🎁';
+    content: '';
 }
 
 .welcome-title {
@@ -340,12 +342,12 @@ body {
 }
 
 .door-bow::before {
-    content: '🎀';
+    content: '';
 }
 
-.sean-bow::before { content: '💙'; }
-.paloma-bow::before { content: '💗'; }
-.together-bow::before { content: '🎀'; }
+.sean-bow::before { content: ''; }
+.paloma-bow::before { content: ''; }
+.together-bow::before { content: ''; }
 
 .door-icon {
     font-size: 2.5rem;
@@ -388,7 +390,7 @@ body {
     color: var(--snow-white);
     opacity: 0.9;
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 .unlock-btn {
@@ -415,166 +417,461 @@ body {
 }
 
 /* ========================================
-   Screen 2: Sean Challenge
+   Screen 2: Sean Challenge - Stadium
    ======================================== */
 
-.football-pitch {
+.stadium {
     position: relative;
-    width: 250px;
+    width: 300px;
     height: 200px;
-    background: linear-gradient(180deg, #2d5a27 0%, #1a4a1a 100%);
+    background: linear-gradient(180deg, #1a3a1a 0%, #0d2a0d 100%);
     border-radius: 10px;
-    border: 3px solid white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     overflow: hidden;
+    border: 3px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 }
 
-.football-pitch::before {
-    content: '';
+.stadium-lights {
     position: absolute;
     top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 40px;
-    border: 2px solid rgba(255, 255, 255, 0.5);
-    border-top: none;
-    border-radius: 0 0 40px 40px;
+    left: 0;
+    right: 0;
+    height: 15px;
+    display: flex;
+    justify-content: space-around;
+    padding: 5px 10px;
 }
 
-.goal-posts {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 100px;
-    height: 10px;
-    background: white;
-    border-radius: 0 0 5px 5px;
-}
-
-.goal-light {
-    position: absolute;
-    top: -5px;
-    width: 10px;
-    height: 10px;
+.stadium-lights .light {
+    width: 8px;
+    height: 8px;
+    background: var(--christmas-gold);
     border-radius: 50%;
-    animation: twinkle 1s ease-in-out infinite alternate;
+    animation: stadiumLight 0.5s ease-in-out infinite alternate;
 }
 
-.goal-light.left { left: -5px; background: var(--christmas-red); }
-.goal-light.right { right: -5px; background: var(--christmas-green); }
+.stadium-lights .l1 { animation-delay: 0s; }
+.stadium-lights .l2 { animation-delay: 0.1s; }
+.stadium-lights .l3 { animation-delay: 0.2s; }
+.stadium-lights .l4 { animation-delay: 0.3s; }
 
-@keyframes twinkle {
-    0% { opacity: 0.5; }
-    100% { opacity: 1; }
+@keyframes stadiumLight {
+    0% { opacity: 0.5; box-shadow: 0 0 5px var(--christmas-gold); }
+    100% { opacity: 1; box-shadow: 0 0 15px var(--christmas-gold); }
 }
 
-.football {
-    font-size: 3.5rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.1s ease;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+.goal-frame {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 180px;
+    height: 60px;
+    border: 4px solid white;
+    border-bottom: none;
+    border-radius: 5px 5px 0 0;
+    background: rgba(255, 255, 255, 0.05);
 }
 
-.football:active {
-    transform: scale(1.2);
+.goal-net {
+    position: absolute;
+    inset: 0;
+    background:
+        repeating-linear-gradient(90deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 12px),
+        repeating-linear-gradient(0deg, transparent, transparent 10px, rgba(255,255,255,0.1) 10px, rgba(255,255,255,0.1) 12px);
 }
 
-.football.kick {
-    animation: kickBall 0.3s ease-out;
+.goal-zones {
+    position: absolute;
+    inset: 0;
+    display: flex;
 }
 
-@keyframes kickBall {
-    0% { transform: scale(1) translateY(0); }
-    50% { transform: scale(1.3) translateY(-50px); }
-    100% { transform: scale(1) translateY(0); }
+.goal-zones .zone {
+    flex: 1;
+    border-right: 1px dashed rgba(255, 255, 255, 0.2);
 }
 
-.kick-counter {
+.goal-zones .zone:last-child {
+    border-right: none;
+}
+
+.goalkeeper {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2.5rem;
+    transition: left 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+}
+
+.goalkeeper.dive-left {
+    left: 15%;
+    animation: diveLeft 0.4s ease-out;
+}
+
+.goalkeeper.dive-right {
+    left: 85%;
+    animation: diveRight 0.4s ease-out;
+}
+
+@keyframes diveLeft {
+    0% { transform: translateX(-50%) rotate(0deg); }
+    50% { transform: translateX(-80%) rotate(-30deg); }
+    100% { transform: translateX(-50%) rotate(0deg); }
+}
+
+@keyframes diveRight {
+    0% { transform: translateX(-50%) rotate(0deg); }
+    50% { transform: translateX(-20%) rotate(30deg); }
+    100% { transform: translateX(-50%) rotate(0deg); }
+}
+
+.goal-text, .save-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--sean-blue);
+    font-weight: 900;
+    text-shadow: 0 0 20px currentColor;
+    animation: textPop 0.5s ease-out;
+    z-index: 10;
+}
+
+.goal-text {
+    color: var(--christmas-gold);
+}
+
+.save-text {
+    color: var(--christmas-red);
+}
+
+@keyframes textPop {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    50% { transform: translate(-50%, -50%) scale(1.3); }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.pitch {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: linear-gradient(180deg, #2d5a27 0%, #1a4a1a 100%);
+}
+
+.pitch-line {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.penalty-spot {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+}
+
+.ball {
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 2.5rem;
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+    transition: all 0.4s ease;
+}
+
+.ball.kick-left {
+    animation: kickBallLeft 0.5s ease-out;
+}
+
+.ball.kick-center {
+    animation: kickBallCenter 0.5s ease-out;
+}
+
+.ball.kick-right {
+    animation: kickBallRight 0.5s ease-out;
+}
+
+@keyframes kickBallLeft {
+    0% { transform: translateX(-50%) scale(1); }
+    30% { transform: translateX(-50%) translateY(-80px) translateX(-60px) scale(0.7); }
+    100% { transform: translateX(-50%) scale(1); }
+}
+
+@keyframes kickBallCenter {
+    0% { transform: translateX(-50%) scale(1); }
+    30% { transform: translateX(-50%) translateY(-100px) scale(0.6); }
+    100% { transform: translateX(-50%) scale(1); }
+}
+
+@keyframes kickBallRight {
+    0% { transform: translateX(-50%) scale(1); }
+    30% { transform: translateX(-50%) translateY(-80px) translateX(60px) scale(0.7); }
+    100% { transform: translateX(-50%) scale(1); }
+}
+
+.aim-buttons {
+    display: flex;
+    gap: 0.75rem;
     margin-top: 1.5rem;
 }
 
+.aim-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid var(--sean-blue);
+    border-radius: 12px;
+    padding: 0.75rem 1.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: white;
+}
+
+.aim-btn:active {
+    background: var(--sean-blue);
+    transform: scale(0.95);
+}
+
+.aim-btn.selected {
+    background: var(--sean-blue);
+    box-shadow: 0 0 20px rgba(65, 105, 225, 0.5);
+}
+
+.aim-arrow {
+    font-size: 1.5rem;
+}
+
+.aim-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.scoreboard {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.score-display {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.score-display .goals {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--christmas-gold);
+}
+
+.score-display .score-divider {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.score-display .target {
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.score-display .score-label {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-left: 0.5rem;
+}
+
+.attempts {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.6);
+    margin-top: 0.5rem;
+}
+
 /* ========================================
-   Screen 4: Paloma Challenge
+   Screen 4: Paloma Challenge - Enhanced Stage
    ======================================== */
 
-.stage {
+.stage-enhanced {
     position: relative;
-    width: 280px;
-    height: 220px;
-    background: linear-gradient(180deg, #4a1a1a 0%, #2d0d0d 100%);
-    border-radius: 10px 10px 0 0;
+    width: 300px;
+    height: 280px;
+    background: linear-gradient(180deg, #3a1a3a 0%, #1a0a1a 100%);
+    border-radius: 15px 15px 0 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    border: 3px solid var(--paloma-pink);
+    box-shadow: 0 10px 40px rgba(255, 105, 180, 0.3);
 }
 
-.curtain {
+.stage-enhanced .curtain {
     position: absolute;
     top: 0;
-    width: 30px;
+    width: 25px;
     height: 100%;
     background: linear-gradient(90deg, #8B0000, #660000);
 }
 
-.curtain.left { left: 0; }
-.curtain.right { right: 0; }
+.stage-enhanced .curtain.left { left: 0; }
+.stage-enhanced .curtain.right { right: 0; }
 
-.stage-lights {
+.stage-enhanced .spotlight {
     position: absolute;
-    top: 10px;
+    top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 100px;
-    height: 5px;
-    background: linear-gradient(90deg,
-        var(--christmas-red) 0%,
-        var(--christmas-gold) 25%,
-        var(--christmas-green) 50%,
-        var(--christmas-gold) 75%,
-        var(--christmas-red) 100%);
-    border-radius: 3px;
-    animation: stageLights 2s linear infinite;
+    width: 0;
+    height: 0;
+    border-left: 60px solid transparent;
+    border-right: 60px solid transparent;
+    border-top: 200px solid rgba(255, 255, 255, 0.1);
+    opacity: 0.5;
+    transition: opacity 0.3s ease;
 }
 
-@keyframes stageLights {
-    0% { filter: brightness(1); }
-    50% { filter: brightness(1.5); }
-    100% { filter: brightness(1); }
+.stage-enhanced.active .spotlight {
+    opacity: 1;
+    border-top-color: rgba(255, 215, 0, 0.2);
 }
 
-.microphone {
-    font-size: 4rem;
+.sound-waves {
+    position: absolute;
+    bottom: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stage-enhanced.active .sound-waves {
+    opacity: 1;
+}
+
+.wave {
+    width: 4px;
+    height: 20px;
+    background: var(--paloma-pink);
+    border-radius: 2px;
+    animation: waveAnimation 0.5s ease-in-out infinite;
+}
+
+.wave.w1 { animation-delay: 0s; height: 15px; }
+.wave.w2 { animation-delay: 0.1s; height: 25px; }
+.wave.w3 { animation-delay: 0.2s; height: 20px; }
+
+@keyframes waveAnimation {
+    0%, 100% { transform: scaleY(1); }
+    50% { transform: scaleY(1.5); }
+}
+
+.star-progress {
+    position: absolute;
+    top: 20px;
+    display: flex;
+    gap: 8px;
+    font-size: 1.25rem;
+}
+
+.star {
+    color: rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.star.lit {
+    color: var(--christmas-gold);
+    text-shadow: 0 0 10px var(--christmas-gold);
+    animation: starPop 0.3s ease-out;
+}
+
+@keyframes starPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+}
+
+.lyrics-display {
+    position: absolute;
+    top: 60px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--christmas-gold);
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+    animation: lyricsFloat 0.5s ease-out;
+    min-height: 2rem;
+}
+
+@keyframes lyricsFloat {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.microphone-enhanced {
+    font-size: 4.5rem;
     background: none;
     border: none;
     cursor: pointer;
     position: relative;
-    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+    z-index: 10;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.4));
     transition: transform 0.2s ease;
 }
 
-.microphone:active {
-    transform: scale(1.2) rotate(-10deg);
+.microphone-enhanced:active {
+    transform: scale(1.15) rotate(-5deg);
 }
 
-.mic-ribbon {
+.mic-glow {
     position: absolute;
-    top: -10px;
-    right: -10px;
-    font-size: 1rem;
+    inset: -20px;
+    background: radial-gradient(circle, rgba(255, 105, 180, 0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s ease;
 }
 
-.mic-ribbon::before {
-    content: '🎀';
+.microphone-enhanced:active .mic-glow {
+    opacity: 1;
+}
+
+.sparkle-container {
+    position: absolute;
+    inset: -50px;
+    pointer-events: none;
+}
+
+.sparkle {
+    position: absolute;
+    font-size: 1rem;
+    animation: sparkleFloat 1s ease-out forwards;
+}
+
+@keyframes sparkleFloat {
+    0% { transform: scale(0) rotate(0deg); opacity: 1; }
+    100% { transform: scale(1.5) rotate(180deg) translateY(-50px); opacity: 0; }
 }
 
 .notes-container {
@@ -591,129 +888,254 @@ body {
 }
 
 @keyframes floatNote {
-    0% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(-150px) scale(1.5) rotate(20deg);
-    }
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-150px) scale(1.5) rotate(20deg); }
 }
 
 .tap-counter {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 600;
     color: var(--paloma-pink);
     margin-top: 1.5rem;
 }
 
 /* ========================================
-   Screen 6: Together Challenge
+   Screen 6: Together Challenge - Portal
    ======================================== */
 
-.ornaments-container {
+.step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.step {
+    padding: 0.5rem 0.75rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    transition: all 0.3s ease;
+}
+
+.step.active {
+    background: var(--christmas-gold);
+    color: #1a1a1a;
+    font-weight: 700;
+}
+
+.step.complete {
+    background: var(--christmas-green);
+    color: white;
+}
+
+.step-arrow {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.portal-arena {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 1rem;
-    margin: 2rem 0;
+    margin: 1rem 0;
 }
 
-.ornament {
-    width: 100px;
-    height: 120px;
-    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-    border: none;
+.magic-orb {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
-    transition: transform 0.2s ease;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
 }
 
-.ornament::before {
-    content: '';
-    position: absolute;
-    top: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 20px;
-    height: 20px;
-    background: var(--christmas-gold);
-    border-radius: 4px;
+.magic-orb.sean-orb {
+    background: radial-gradient(circle at 30% 30%, var(--sean-blue), var(--sean-blue-dark));
+    border-color: var(--sean-blue);
 }
 
-.ornament::after {
-    content: '';
-    position: absolute;
-    top: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 2px;
-    height: 15px;
-    background: var(--christmas-gold);
+.magic-orb.paloma-orb {
+    background: radial-gradient(circle at 30% 30%, var(--paloma-pink), var(--paloma-pink-dark));
+    border-color: var(--paloma-pink);
 }
 
-.sean-ornament {
-    background: linear-gradient(135deg, var(--sean-blue) 0%, var(--sean-blue-dark) 100%);
-}
-
-.paloma-ornament {
-    background: linear-gradient(135deg, var(--paloma-pink) 0%, var(--paloma-pink-dark) 100%);
-}
-
-.ornament:active {
+.magic-orb:active,
+.magic-orb.pressed {
     transform: scale(0.95);
 }
 
-.ornament.tapped {
-    animation: ornamentGlow 0.5s ease-out;
+.magic-orb.active {
+    animation: orbPulse 0.5s ease-in-out infinite;
 }
 
-@keyframes ornamentGlow {
-    0% { box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); }
-    50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.8); }
-    100% { box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3); }
+@keyframes orbPulse {
+    0%, 100% { box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3); }
+    50% { box-shadow: 0 5px 40px rgba(255, 255, 255, 0.5); }
 }
 
-.ornament-letter {
-    font-size: 2.5rem;
-    font-weight: 700;
+.orb-initial {
+    font-size: 2rem;
+    font-weight: 900;
     color: white;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.ornament-connector {
-    width: 30px;
-    height: 3px;
-    background: var(--christmas-gold);
+.energy-stream {
+    position: absolute;
+    width: 100px;
+    height: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sean-stream {
+    right: -100px;
+    background: linear-gradient(90deg, var(--sean-blue), transparent);
+}
+
+.paloma-stream {
+    left: -100px;
+    background: linear-gradient(-90deg, var(--paloma-pink), transparent);
+}
+
+.magic-orb.active .energy-stream {
+    opacity: 1;
+    animation: energyFlow 0.5s ease-in-out infinite;
+}
+
+@keyframes energyFlow {
+    0%, 100% { transform: translateY(-50%) scaleX(0.5); opacity: 0.5; }
+    50% { transform: translateY(-50%) scaleX(1); opacity: 1; }
+}
+
+.magic-portal {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.portal-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 3px solid;
+    animation: portalSpin 3s linear infinite;
+}
+
+.ring-1 {
+    width: 100%;
+    height: 100%;
+    border-color: var(--portal-blue);
+    opacity: 0.3;
+}
+
+.ring-2 {
+    width: 80%;
+    height: 80%;
+    border-color: var(--portal-purple);
+    animation-direction: reverse;
+    animation-duration: 2s;
     opacity: 0.5;
 }
 
-.together-hint {
+.ring-3 {
+    width: 60%;
+    height: 60%;
+    border-color: var(--christmas-gold);
+    animation-duration: 1.5s;
+    opacity: 0.7;
+}
+
+@keyframes portalSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.portal-center {
+    width: 40px;
+    height: 40px;
+    background: radial-gradient(circle, var(--portal-blue) 0%, var(--portal-purple) 50%, transparent 70%);
+    border-radius: 50%;
+    position: relative;
+    overflow: hidden;
+}
+
+.portal-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 0%;
+    background: var(--christmas-gold);
+    transition: height 0.1s linear;
+}
+
+.magic-portal.charging .ring-1,
+.magic-portal.charging .ring-2,
+.magic-portal.charging .ring-3 {
+    animation-duration: 0.5s;
+}
+
+.magic-portal.open {
+    animation: portalOpen 0.5s ease-out forwards;
+}
+
+@keyframes portalOpen {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.5); }
+    100% { transform: scale(1); }
+}
+
+.sackboy {
+    font-size: 3rem;
+    position: absolute;
+    animation: sackboyBounce 0.5s ease-out;
+}
+
+@keyframes sackboyBounce {
+    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+    50% { transform: scale(1.3) rotate(0deg); }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.magic-power-bar {
+    width: 200px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+.power-fill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--portal-blue), var(--portal-purple), var(--christmas-gold));
+    border-radius: 5px;
+    transition: width 0.1s linear;
+}
+
+.portal-instruction {
     font-size: 1rem;
     color: var(--snow-white);
-    opacity: 0.8;
     text-align: center;
+    min-height: 1.5rem;
 }
 
-.together-hint.success {
+.portal-instruction.success {
     color: var(--christmas-gold);
     font-weight: 700;
-}
-
-.together-hint.fail {
-    color: var(--christmas-red);
-    animation: shake 0.5s ease-out;
-}
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20%, 60% { transform: translateX(-10px); }
-    40%, 80% { transform: translateX(10px); }
 }
 
 /* ========================================
@@ -899,12 +1321,22 @@ body {
 }
 
 /* ========================================
-   Landscape Warning (optional)
+   Landscape
    ======================================== */
 
 @media (orientation: landscape) and (max-height: 500px) {
     .screen {
         padding: 1rem;
+    }
+
+    .stadium {
+        width: 250px;
+        height: 160px;
+    }
+
+    .stage-enhanced {
+        width: 250px;
+        height: 220px;
     }
 
     .gift-doors {
