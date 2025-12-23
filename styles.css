@@ -180,59 +180,29 @@ body {
     background: radial-gradient(ellipse at center, #1a2e3a 0%, #0d1a1a 100%);
 }
 
-.snow-globe {
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.3), transparent 60%),
-                linear-gradient(180deg, #2a3f5f 0%, #1a2a4a 100%);
+/* Family Photo on Welcome Screen */
+.family-photo-container {
+    width: 220px;
+    height: 220px;
     border-radius: 50%;
-    border: 8px solid var(--christmas-gold);
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3),
-                inset 0 0 60px rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
+    border: 6px solid var(--christmas-gold);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.4),
+                0 0 60px rgba(255, 215, 0, 0.2);
+    overflow: hidden;
     margin-bottom: 2rem;
+    animation: photoGlow 3s ease-in-out infinite;
 }
 
-.globe-content {
-    position: relative;
-    width: 80%;
-    height: 80%;
+.family-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
 }
 
-.christmas-tree {
-    position: absolute;
-    bottom: 20%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 30px solid transparent;
-    border-right: 30px solid transparent;
-    border-bottom: 60px solid var(--christmas-green);
-}
-
-.christmas-tree::before {
-    content: '';
-    position: absolute;
-    top: -25px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 1rem;
-}
-
-.presents-pile {
-    position: absolute;
-    bottom: 10%;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 1.5rem;
-}
-
-.presents-pile::before {
-    content: '';
+@keyframes photoGlow {
+    0%, 100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.4), 0 0 60px rgba(255, 215, 0, 0.2); }
+    50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.6), 0 0 80px rgba(255, 215, 0, 0.3); }
 }
 
 .welcome-title {
